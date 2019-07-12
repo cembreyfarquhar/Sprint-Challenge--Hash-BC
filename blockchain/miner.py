@@ -24,6 +24,8 @@ def proof_of_work(last_proof):
     print("Searching for next proof")
     proof = 0
     #  TODO: Your code here
+    while valid_proof(last_proof, proof) is False:
+        proof += random.randint(1, 101)
 
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     return proof
@@ -38,7 +40,12 @@ def valid_proof(last_hash, proof):
     """
 
     # TODO: Your code here!
-    pass
+    hash_guess = str(proof).encode()
+    last_hash = str(last_hash)
+
+    hashed_proof = hashlib.sha256(hash_guess).hexdigest()
+
+    return hashed_proof[:6] == last_hash[-6:]
 
 
 if __name__ == '__main__':
@@ -47,6 +54,7 @@ if __name__ == '__main__':
         node = sys.argv[1]
     else:
         node = "https://lambda-coin.herokuapp.com"
+        # node = "http://0.0.0.0:5000"
 
     coins_mined = 0
 
@@ -68,6 +76,8 @@ if __name__ == '__main__':
         r = requests.get(url=node + "/last_proof")
         data = r.json()
         new_proof = proof_of_work(data.get('proof'))
+        # new_proof = proof_of_work(data)
+
 
         post_data = {"proof": new_proof,
                      "id": id}
